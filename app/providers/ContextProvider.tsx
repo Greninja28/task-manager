@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GlobalProvider } from "../context/globalProvider";
+import { Toaster } from "react-hot-toast";
 
 const ContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [isReady, setIsReady] = useState(false);
@@ -16,7 +17,12 @@ const ContextProvider = ({ children }: { children: React.ReactNode }) => {
     return null;
   }
 
-  return <GlobalProvider>{children}</GlobalProvider>;
+  return (
+    <GlobalProvider>
+      <Toaster />
+      {children}
+    </GlobalProvider>
+  );
 };
 
 export default ContextProvider;
