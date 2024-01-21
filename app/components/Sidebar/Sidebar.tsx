@@ -9,12 +9,14 @@ import { usePathname, useRouter } from "next/navigation";
 import Button from "../Button/Button";
 import { logout } from "@/app/utils/Icons";
 import { useClerk } from "@clerk/clerk-react";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 const Sidebar = () => {
   const { theme } = useGlobalState();
   const router = useRouter();
   const pathname = usePathname();
   const { signOut } = useClerk();
+  const { user } = useUser();
 
   const handleClick = (link: string) => {
     router.push(link);
@@ -24,16 +26,25 @@ const Sidebar = () => {
     signOut(() => router.push("/signin"));
   };
 
+  const { firstName, lastName, imageUrl } = user || {
+    firstName: "",
+    lastName: "",
+    imageUrl: "",
+  };
+
   return (
     <SidebarStyled theme={theme}>
       <div className="profile">
         <div className="profile-overlay"></div>
         <div className="image">
-          <Image width={70} height={100} src="/avatar.jpg" alt="Profile" />
+          <Image fill src={imageUrl} alt="Profile" />
         </div>
-        <h1>
-          <span>Sahej</span>
-          <span>Jain</span>
+        <div className="user-btn absolute z-20 top-0 w-full h-full ">
+          <UserButton />
+        </div>
+        <h1 className="capitalize">
+          <span>{firstName}</span>
+          <span>{lastName}</span>
         </h1>
       </div>
 
@@ -42,6 +53,7 @@ const Sidebar = () => {
           const link = item.link;
           return (
             <li
+              key={item.link}
               className={`nav-item ${pathname === link ? "active" : ""}`}
               onClick={() => handleClick(link)}
             >
@@ -77,6 +89,24 @@ const SidebarStyled = styled.nav`
   flex-direction: column;
   justify-content: space-between;
   color: ${(props) => props.theme.colorGrey3};
+
+  .user-btn {
+    .cl-rootBox {
+      width: 100%;
+      height: 100%;
+
+      .cl-userButtonBox {
+        width: 100%;
+        height: 100%;
+
+        .cl-userButtonTrigger {
+          opacity: 0;
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
 
   .profile {
     margin: 1.5rem;
@@ -124,7 +154,7 @@ const SidebarStyled = styled.nav`
       transition: all 0.5s ease;
       border-radius: 100%;
       width: 70px;
-      height: 100%;
+      height: 70px;
 
       img {
         border-radius: 100%;

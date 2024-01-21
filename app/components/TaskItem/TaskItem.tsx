@@ -4,6 +4,7 @@ import { useGlobalState } from "@/app/context/globalProvider";
 import { edit, trash } from "@/app/utils/Icons";
 import styled from "styled-components";
 import formatDate from "@/app/utils/formatDate";
+import CreateContent from "../Models/CreateContent";
 
 interface Props {
   title: string;
@@ -14,7 +15,7 @@ interface Props {
 }
 
 const TaskItem = ({ title, description, date, isCompleted, id }: Props) => {
-  const { theme } = useGlobalState();
+  const { theme, deleteTask, updateTask } = useGlobalState();
   return (
     <TaskItemStyled theme={theme}>
       <h1>{title}</h1>
@@ -22,12 +23,30 @@ const TaskItem = ({ title, description, date, isCompleted, id }: Props) => {
       <p className="date">{formatDate(date)}</p>
       <div className="task-footer">
         {isCompleted ? (
-          <button className="completed">Completed</button>
+          <button
+            className="completed"
+            onClick={() => {
+              const task = { id, isCompleted: !isCompleted };
+              updateTask(task);
+            }}
+          >
+            Completed
+          </button>
         ) : (
-          <button className="incomplete">Incomplete</button>
+          <button
+            className="incomplete"
+            onClick={() => {
+              const task = { id, isCompleted: !isCompleted };
+              updateTask(task);
+            }}
+          >
+            Incomplete
+          </button>
         )}
         <button className="edit">{edit}</button>
-        <button className="delete">{trash}</button>
+        <button className="delete" onClick={() => deleteTask(id)}>
+          {trash}
+        </button>
       </div>
     </TaskItemStyled>
   );

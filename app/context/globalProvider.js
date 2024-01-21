@@ -3,6 +3,8 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import themes from "./themes"
 import axios from "axios"
+import { useUser } from "@clerk/nextjs"
+import toast from "react-hot-toast";
 
 export const GlobalContext = createContext()
 export const GlobalUpdateContext = createContext()
@@ -11,7 +13,9 @@ export const GlobalProvider = ({ children }) => {
    const [selectedTheme, setSelectedTheme] = useState(0)
    const theme = themes[selectedTheme]
    const [isLoading, setIsLoading] = useState(false)
+   const [modal, setModal] = useState(false)
    const [tasks, setTasks] = useState([])
+   const { user } = useUser()
 
    const allTasks = async () => {
       setIsLoading(true)
@@ -24,11 +28,46 @@ export const GlobalProvider = ({ children }) => {
       }
    }
 
+   const deleteTask = async (id) => {
+      try {
+         const res = await axios.delete(`/api/tasks/${id}`)
+         toast.success("Task deleted");
+         allTasks()
+      } catch (error) {
+         console.log(error);
+         toast.error("Something went error")
+      }
+   }
+
+   const completedTasks = tasks.filter((task) => task.isCompleted === true)
+   const importantTasks = tasks.filter((task) => task.isImportant === true)
+   const incompleteTasks = tasks.filter((task) => task.isCompleted === false)
+
+   const updateTask = async (task) => {
+      try {
+         const res = await axios.put(`/api/tasks`, task)
+         toast.success("Task updated")
+         allTasks()
+      } catch (error) {
+         console.log(error);
+         toast.error("Something went wrong")
+      }
+   }
+
+   const openModal = () => {
+      setModal(true)
+   }
+   const closeModal = () => {
+      setModal(false)
+   }
+
    useEffect(() => {
-      allTasks()
-   }, [])
+      if (user) {
+         allTasks()
+      }
+   }, [user])
    return (
-      <GlobalContext.Provider value={{ theme, tasks }}>
+      <GlobalContext.Provider value={{ theme, tasks, deleteTask, isLoading, completedTasks, importantTasks, incompleteTasks, updateTask, openModal, closeModal, modal, allTasks }}>
          <GlobalUpdateContext.Provider value={{}}>
             {children}
          </GlobalUpdateContext.Provider>

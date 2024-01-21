@@ -5,6 +5,7 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import GlobalStyleProvider from "./providers/GlobalStyleProvider";
 import ContextProvider from "./providers/ContextProvider";
 import { ClerkProvider, auth } from "@clerk/nextjs";
+import NextTopLoader from "nextjs-toploader";
 
 const nunito = Nunito({
   weight: ["400", "500", "600", "700", "800"],
@@ -36,6 +37,12 @@ export default function RootLayout({
           />
         </head>
         <body className={nunito.className}>
+          <NextTopLoader
+            height={2}
+            color="#27ae60"
+            easing="cubic-bezier(.53, .21, 0,1)"
+            showSpinner={false}
+          />
           <ContextProvider>
             <GlobalStyleProvider>
               {userId && <Sidebar />}
