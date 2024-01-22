@@ -14,6 +14,7 @@ export const GlobalProvider = ({ children }) => {
    const theme = themes[selectedTheme]
    const [isLoading, setIsLoading] = useState(false)
    const [modal, setModal] = useState(false)
+   const [collapsed, setCollapsed] = useState(false)
    const [tasks, setTasks] = useState([])
    const { user } = useUser()
 
@@ -21,7 +22,10 @@ export const GlobalProvider = ({ children }) => {
       setIsLoading(true)
       try {
          const res = await axios.get("/api/tasks")
-         setTasks(res.data)
+         const sorted = res.data.sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+         })
+         setTasks(sorted)
          setIsLoading(false)
       } catch (error) {
          console.log(error);
@@ -61,13 +65,17 @@ export const GlobalProvider = ({ children }) => {
       setModal(false)
    }
 
+   const collapseMenu = () => {
+      setCollapsed(!collapsed)
+   }
+
    useEffect(() => {
       if (user) {
          allTasks()
       }
    }, [user])
    return (
-      <GlobalContext.Provider value={{ theme, tasks, deleteTask, isLoading, completedTasks, importantTasks, incompleteTasks, updateTask, openModal, closeModal, modal, allTasks }}>
+      <GlobalContext.Provider value={{ theme, tasks, deleteTask, isLoading, completedTasks, importantTasks, incompleteTasks, updateTask, openModal, closeModal, modal, allTasks, collapsed, collapseMenu }}>
          <GlobalUpdateContext.Provider value={{}}>
             {children}
          </GlobalUpdateContext.Provider>
